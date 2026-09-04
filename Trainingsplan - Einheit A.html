@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Einheit A">
+<title>Einheit A – Rücken &amp; Beine</title>
+<style>
+:root{
+  --bg:#1c1f22;
+  --surface:#24282c;
+  --surface2:#2b3034;
+  --border:#383e43;
+  --text:#edeef0;
+  --text2:#9aa1a8;
+  --accent:#3e8ea8;
+  --accent-dim:#2c6a7d;
+  --good:#5fae7a;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;}
+body{padding-bottom:90px;}
+.mono{font-family:"SF Mono",ui-monospace,Menlo,monospace;}
+header{position:sticky;top:0;z-index:20;background:var(--bg);
+  padding:calc(env(safe-area-inset-top) + 14px) 18px 12px;
+  border-bottom:1px solid var(--border);}
+header .eyebrow{color:var(--accent);font-size:12px;letter-spacing:.04em;margin-bottom:2px;}
+header h1{font-size:21px;margin:0 0 4px;font-weight:650;}
+header .sub{color:var(--text2);font-size:13px;}
+nav.tabs{display:flex;gap:6px;margin:14px 18px 4px;background:var(--surface);
+  border:1px solid var(--border);border-radius:10px;padding:3px;}
+nav.tabs button{flex:1;padding:9px 0;border:none;background:transparent;color:var(--text2);
+  font-size:14px;border-radius:8px;font-weight:600;}
+nav.tabs button.active{background:var(--accent);color:#0e1416;}
+main{padding:6px 18px 24px;}
+section.block{margin-top:22px;}
+section.block h2{font-size:13px;text-transform:none;color:var(--text2);
+  margin:0 0 10px;font-weight:600;letter-spacing:.02em;border-left:3px solid var(--accent);
+  padding-left:8px;}
+.checklist label{display:flex;align-items:center;gap:10px;padding:9px 4px;
+  border-bottom:1px solid var(--border);font-size:14.5px;}
+.checklist label:last-child{border-bottom:none;}
+.checklist input[type=checkbox]{width:19px;height:19px;accent-color:var(--accent);}
+.checklist span.note{color:var(--text2);font-size:12.5px;margin-left:auto;text-align:right;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  margin-bottom:12px;overflow:hidden;}
+.card .head{padding:13px 14px 10px;}
+.card .head .name{font-size:15.5px;font-weight:650;}
+.card .head .equip{color:var(--accent);font-size:12.5px;margin-top:3px;}
+.card .head .target{color:var(--text2);font-size:12px;margin-top:5px;}
+.card .rows{padding:0 14px 12px;}
+.setrow{display:grid;grid-template-columns:26px 1fr 1fr 30px;gap:8px;align-items:center;
+  margin-top:8px;}
+.setrow .idx{color:var(--text2);font-size:13px;text-align:center;}
+.setrow input{width:100%;background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-size:15px;padding:8px 6px;text-align:center;
+  font-family:"SF Mono",ui-monospace,Menlo,monospace;}
+.setrow .del{color:var(--text2);font-size:18px;text-align:center;}
+.card .foot{display:flex;gap:8px;padding:10px 14px 14px;}
+.addset{flex:1;background:var(--surface2);border:1px dashed var(--border);color:var(--text2);
+  border-radius:8px;padding:9px;font-size:13px;}
+.timerbtn{background:var(--accent-dim);border:none;color:var(--text);border-radius:8px;
+  padding:9px 14px;font-size:13px;min-width:78px;font-weight:600;}
+.timerbtn.running{background:var(--accent);color:#0e1416;}
+
+.cardiocard{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:14px;}
+.cardiocard .desc{font-size:13.5px;color:var(--text2);line-height:1.5;margin-bottom:10px;}
+.cardiocard .row{display:flex;gap:10px;}
+.cardiocard input{flex:1;background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-size:15px;padding:9px;text-align:center;}
+.cardiocard label.small{display:block;font-size:11px;color:var(--text2);margin-bottom:4px;}
+
+footer.bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg);
+  border-top:1px solid var(--border);padding:12px 18px calc(env(safe-area-inset-bottom) + 12px);
+  display:flex;gap:10px;z-index:20;}
+.savebtn{flex:1;background:var(--accent);color:#0e1416;border:none;border-radius:11px;
+  padding:14px;font-size:15.5px;font-weight:700;}
+.savebtn:active{opacity:.85;}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+  background:var(--good);color:#0e1416;padding:9px 16px;border-radius:20px;
+  font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s;}
+.toast.show{opacity:1;}
+
+.histsession{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:14px;margin-bottom:12px;}
+.histsession .date{font-weight:650;font-size:14.5px;}
+.histsession .exline{display:flex;justify-content:space-between;font-size:13px;
+  color:var(--text2);padding:5px 0;border-top:1px solid var(--border);margin-top:7px;}
+.histsession .exline b{color:var(--text);font-weight:600;}
+.empty{color:var(--text2);font-size:13.5px;text-align:center;padding:40px 10px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">MONTAG · EINHEIT A</div>
+  <h1>Rücken &amp; Beine + Core</h1>
+  <div class="sub" id="dateline"></div>
+</header>
+
+<nav class="tabs">
+  <button id="tabTrainBtn" class="active">Training</button>
+  <button id="tabHistBtn">Verlauf</button>
+</nav>
+
+<main>
+  <div id="viewTrain">
+    <section class="block">
+      <h2>Warm-up · 10 Min</h2>
+      <div class="checklist" id="warmup"></div>
+    </section>
+
+    <section class="block">
+      <h2>Hauptteil · Kraft</h2>
+      <div id="exercises"></div>
+    </section>
+
+    <section class="block">
+      <h2>Cardio-Finisher</h2>
+      <div class="cardiocard">
+        <div class="desc">Rudergerät Intervall: 30 Sek Sprint (Zone 4) / 90 Sek locker (Zone 2), 6–8 Runden.</div>
+        <div class="row">
+          <div>
+            <label class="small">Runden</label>
+            <input type="number" id="cardioRounds" inputmode="numeric" placeholder="–">
+          </div>
+          <div>
+            <label class="small">Gefühl (1–10)</label>
+            <input type="number" id="cardioRpe" inputmode="numeric" placeholder="–">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Cool-down · 5 Min</h2>
+      <div class="checklist" id="cooldown"></div>
+    </section>
+  </div>
+
+  <div id="viewHist" style="display:none;">
+    <section class="block" style="margin-top:8px;">
+      <h2>Letzte Einheiten</h2>
+      <div id="histList"></div>
+    </section>
+  </div>
+</main>
+
+<footer class="bar">
+  <button class="savebtn" id="saveBtn">Einheit speichern</button>
+</footer>
+<div class="toast" id="toast">Gespeichert ✓</div>
+
+<script>
+const DAY_ID = 'A';
+const ACCENT = '#3e8ea8';
+
+const WARMUP = [
+  {t:'Rudergerät 5 Min lockeres Tempo (Zone 1–2)'},
+  {t:'Cat-Cow', n:'10 Wdh.'},
+  {t:'Thoracic Rotation', n:'8×/Seite'},
+  {t:'Hip Flexor Stretch', n:'30 Sek/Seite'},
+  {t:'Glute Bridge', n:'15 Wdh.'},
+];
+const COOLDOWN = [
+  {t:"Child's Pose", n:'1 Min'},
+  {t:'Hamstring Stretch', n:'30 Sek/Seite'},
+  {t:'Lat Stretch', n:'30 Sek/Seite'},
+];
+
+const EXERCISES = [
+  {id:'kh', name:'Kreuzheben', equip:'Freihantelbereich – Langhantel', target:'3 Sätze × 6–8 Wdh · Pause 2–3 Min', sets:3, rest:150, unit:'Wdh'},
+  {id:'lz', name:'Latzug breiter Griff', equip:'Ersatz: Kabelturm – Lat-Rückenzug von oben (Gerät B5)', target:'3 Sätze × 8–10 Wdh · Pause 90 Sek', sets:3, rest:90, unit:'Wdh'},
+  {id:'rs', name:'Rudern sitzend', equip:'Kabelturm – tiefe Umlenkrolle, V-Griff', target:'3 Sätze × 10–12 Wdh · Pause 90 Sek', sets:3, rest:90, unit:'Wdh'},
+  {id:'rk', name:'Rumänisches Kreuzheben', equip:'Freihantelbereich – Kurz- oder Langhantel', target:'3 Sätze × 8–10 Wdh · Pause 2 Min', sets:3, rest:120, unit:'Wdh'},
+  {id:'bp', name:'Beinpresse', equip:'Ersatz: Cybex Eagle Leg Press (alt. Funktionsstemme R6-sl)', target:'3 Sätze × 10–12 Wdh · Pause 90 Sek', sets:3, rest:90, unit:'Wdh'},
+  {id:'rex', name:'Rückenstrecker', equip:'Ersatz: Extensionstrainer großer Rückenstrecker (Gerät R14) – gut bei Rückenbelastung vom Radfahren', target:'3 Sätze × 12–15 Wdh · Pause 60 Sek', sets:3, rest:60, unit:'Wdh'},
+  {id:'pl', name:'Plank', equip:'Matte, Unterarmstütz', target:'3 Sätze × 45–60 Sek · Pause 60 Sek', sets:3, rest:60, unit:'Sek'},
+  {id:'llr', name:'Lying Leg Raise (optional)', equip:'Ersatz: Gerät R3 – Hüftbeuger/Rumpf, gut gegen Verkürzung vom Radfahren', target:'2 Sätze × 12–15 Wdh · Pause 60 Sek', sets:2, rest:60, unit:'Wdh'},
+];
+
+function fmtDate(d){
+  return d.toLocaleDateString('de-DE',{weekday:'long', day:'2-digit', month:'long'});
+}
+document.getElementById('dateline').textContent = fmtDate(new Date());
+
+function renderChecklist(el, items){
+  el.innerHTML = items.map((it,i)=>`
+    <label>
+      <input type="checkbox" data-i="${i}">
+      <span>${it.t}</span>
+      ${it.n?`<span class="note">${it.n}</span>`:''}
+    </label>`).join('');
+}
+renderChecklist(document.getElementById('warmup'), WARMUP);
+renderChecklist(document.getElementById('cooldown'), COOLDOWN);
+
+const exWrap = document.getElementById('exercises');
+let state = {}; // exId -> array of {w, r}
+
+async function loadPrefill(){
+  try{
+    const res = await window.storage.get('prefill:'+DAY_ID, false);
+    return res && res.value ? JSON.parse(res.value) : {};
+  }catch(e){ return {}; }
+}
+
+function setRowHtml(exId, idx, w, r, unit){
+  return `<div class="setrow" data-ex="${exId}" data-idx="${idx}">
+    <div class="idx">${idx+1}</div>
+    <input type="number" inputmode="decimal" placeholder="kg" class="wIn" value="${w||''}">
+    <input type="number" inputmode="numeric" placeholder="${unit}" class="rIn" value="${r||''}">
+    <div class="del" data-action="del">✕</div>
+  </div>`;
+}
+
+function renderExercise(ex, prefill){
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.ex = ex.id;
+  const initialSets = (prefill[ex.id] && prefill[ex.id].length) ? prefill[ex.id] : Array.from({length:ex.sets},()=>({w:'',r:''}));
+  state[ex.id] = initialSets.map(s=>({w:'', r:''})); // start blank for logging, but show target counts
+  card.innerHTML = `
+    <div class="head">
+      <div class="name">${ex.name}</div>
+      <div class="equip">${ex.equip}</div>
+      <div class="target">${ex.target}</div>
+    </div>
+    <div class="rows">${initialSets.map((s,i)=>setRowHtml(ex.id,i,'', '', ex.unit)).join('')}</div>
+    <div class="foot">
+      <button class="addset" data-action="add">+ Satz</button>
+      <button class="timerbtn" data-action="timer" data-rest="${ex.rest}">Pause ${ex.rest}s</button>
+    </div>
+  `;
+  exWrap.appendChild(card);
+}
+
+let timerInterval = null;
+function startTimer(btn, seconds){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+  document.querySelectorAll('.timerbtn.running').forEach(b=>{
+    b.classList.remove('running'); b.textContent = 'Pause '+b.dataset.rest+'s';
+  });
+  let remaining = seconds;
+  btn.classList.add('running');
+  btn.textContent = fmtTime(remaining);
+  timerInterval = setInterval(()=>{
+    remaining--;
+    if(remaining<=0){
+      clearInterval(timerInterval); timerInterval=null;
+      btn.classList.remove('running');
+      btn.textContent = 'Pause '+btn.dataset.rest+'s';
+      if(navigator.vibrate) navigator.vibrate([200,100,200]);
+    } else {
+      btn.textContent = fmtTime(remaining);
+    }
+  },1000);
+}
+function fmtTime(s){
+  const m=Math.floor(s/60), r=s%60;
+  return m+':'+String(r).padStart(2,'0');
+}
+
+exWrap.addEventListener('click', (e)=>{
+  const action = e.target.dataset.action;
+  if(!action) return;
+  const card = e.target.closest('.card');
+  const exId = card.dataset.ex;
+  if(action==='add'){
+    const rows = card.querySelector('.rows');
+    const idx = rows.children.length;
+    const ex = EXERCISES.find(x=>x.id===exId);
+    rows.insertAdjacentHTML('beforeend', setRowHtml(exId, idx, '', '', ex.unit));
+  }
+  if(action==='del'){
+    const row = e.target.closest('.setrow');
+    row.remove();
+    // reindex
+    const rows = card.querySelectorAll('.setrow');
+    rows.forEach((r,i)=>{ r.dataset.idx=i; r.querySelector('.idx').textContent=i+1; });
+  }
+  if(action==='timer'){
+    startTimer(e.target, parseInt(e.target.dataset.rest,10));
+  }
+});
+
+loadPrefill().then(prefill=>{
+  EXERCISES.forEach(ex=>renderExercise(ex, prefill));
+});
+
+// Tabs
+const tabTrainBtn = document.getElementById('tabTrainBtn');
+const tabHistBtn = document.getElementById('tabHistBtn');
+const viewTrain = document.getElementById('viewTrain');
+const viewHist = document.getElementById('viewHist');
+tabTrainBtn.onclick = ()=>{
+  tabTrainBtn.classList.add('active'); tabHistBtn.classList.remove('active');
+  viewTrain.style.display='block'; viewHist.style.display='none';
+};
+tabHistBtn.onclick = ()=>{
+  tabHistBtn.classList.add('active'); tabTrainBtn.classList.remove('active');
+  viewTrain.style.display='none'; viewHist.style.display='block';
+  loadHistory();
+};
+
+async function loadHistory(){
+  const list = document.getElementById('histList');
+  list.innerHTML = '<div class="empty">Lädt…</div>';
+  try{
+    const res = await window.storage.get('sessions:'+DAY_ID, false);
+    const sessions = res && res.value ? JSON.parse(res.value) : [];
+    if(!sessions.length){ list.innerHTML = '<div class="empty">Noch keine gespeicherten Einheiten.</div>'; return; }
+    list.innerHTML = sessions.slice().reverse().slice(0,10).map(s=>{
+      const exLines = Object.entries(s.exercises||{}).map(([exId, sets])=>{
+        const ex = EXERCISES.find(x=>x.id===exId);
+        if(!ex || !sets.length) return '';
+        const best = sets.filter(x=>x.w||x.r).map(x=>`${x.w||'–'}kg×${x.r||'–'}`).join(', ');
+        if(!best) return '';
+        return `<div class="exline"><b>${ex.name}</b><span>${best}</span></div>`;
+      }).join('');
+      return `<div class="histsession">
+        <div class="date">${s.dateLabel}</div>
+        ${exLines || '<div class="exline"><span>Keine Sätze protokolliert</span></div>'}
+      </div>`;
+    }).join('');
+  }catch(e){
+    list.innerHTML = '<div class="empty">Verlauf konnte nicht geladen werden.</div>';
+  }
+}
+
+document.getElementById('saveBtn').onclick = async ()=>{
+  const exercisesData = {};
+  const prefill = {};
+  document.querySelectorAll('#exercises .card').forEach(card=>{
+    const exId = card.dataset.ex;
+    const sets = [];
+    card.querySelectorAll('.setrow').forEach(row=>{
+      const w = row.querySelector('.wIn').value;
+      const r = row.querySelector('.rIn').value;
+      sets.push({w, r});
+    });
+    exercisesData[exId] = sets;
+    prefill[exId] = sets;
+  });
+  const session = {
+    date: new Date().toISOString(),
+    dateLabel: fmtDate(new Date()),
+    exercises: exercisesData,
+    cardioRounds: document.getElementById('cardioRounds').value,
+    cardioRpe: document.getElementById('cardioRpe').value,
+    warmupDone: Array.from(document.querySelectorAll('#warmup input:checked')).length,
+    cooldownDone: Array.from(document.querySelectorAll('#cooldown input:checked')).length,
+  };
+  try{
+    const res = await window.storage.get('sessions:'+DAY_ID, false);
+    const sessions = res && res.value ? JSON.parse(res.value) : [];
+    sessions.push(session);
+    await window.storage.set('sessions:'+DAY_ID, JSON.stringify(sessions), false);
+    await window.storage.set('prefill:'+DAY_ID, JSON.stringify(prefill), false);
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(()=>toast.classList.remove('show'), 1800);
+  }catch(e){
+    alert('Speichern fehlgeschlagen. Bitte erneut versuchen.');
+  }
+};
+</script>
+</body>
+</html>
